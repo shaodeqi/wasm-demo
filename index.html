@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <script type="module">
+    import init, { transpose } from './pkg/wasm_demo.js';
+  
+    async function run() {
+      await init('/pkg/wasm_demo_bg.wasm');
+  
+      let matrix = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+      let rows = 3;
+      let cols = 3;
+      let transposed = transpose(matrix, rows, cols);
+      let transposedMatrix = [];
+      for (let i = 0; i < transposed.rows; i++) {
+        let row = transposed.data.slice(i * transposed.cols, (i + 1) * transposed.cols);
+        transposedMatrix.push(row);
+      }
+      console.log(transposedMatrix);
+    }
+  
+    run();
+  </script>
+  <script>
+    WebAssembly.instantiateStreaming(fetch('./pkg/wasm_demo_bg.wasm')).then(
+      (obj) => {
+        const transpose = obj.instance.exports.transpose;
+        const out = transpose([1, 2, 3, 4, 5, 6, 7, 8, 9], 3, 3);
+        console.log('rust output: ', out);
+      }
+    );
+  </script>
+  <body></body>
+</html>
